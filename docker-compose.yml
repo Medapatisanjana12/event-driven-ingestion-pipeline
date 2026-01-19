@@ -39,8 +39,12 @@ services:
     build: ./ingestion
     ports:
       - "8000:8000"
+    environment:
+      - KAFKA_BROKER=kafka:9092
+      - KAFKA_TOPIC=sensor-data
     depends_on:
       - kafka
+
 
   generator:
     build: ./generator
@@ -52,6 +56,11 @@ services:
 
   consumer:
     build: ./consumer
+    environment:
+      - KAFKA_BROKER=kafka:9092
+      - KAFKA_TOPIC=sensor-data
+      - KAFKA_GROUP_ID=sensor-consumer
+      - MONGO_URI=mongodb://root:rootpassword@mongodb:27017/?authSource=admin
     depends_on:
       - kafka
       - mongodb
@@ -60,6 +69,7 @@ services:
     build: ./api
     ports:
       - "8001:8001"
+    environment:
+      - MONGO_URI=mongodb://root:rootpassword@mongodb:27017/?authSource=admin
     depends_on:
       - mongodb
-
