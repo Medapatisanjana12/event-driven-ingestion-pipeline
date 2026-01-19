@@ -34,3 +34,32 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: rootpassword
+
+  ingestion:
+    build: ./ingestion
+    ports:
+      - "8000:8000"
+    depends_on:
+      - kafka
+
+  generator:
+    build: ./generator
+    depends_on:
+      - ingestion
+    environment:
+      - INGESTION_URL=http://ingestion:8000/ingest
+      - GENERATION_INTERVAL=5
+
+  consumer:
+    build: ./consumer
+    depends_on:
+      - kafka
+      - mongodb
+
+  api:
+    build: ./api
+    ports:
+      - "8001:8001"
+    depends_on:
+      - mongodb
+
